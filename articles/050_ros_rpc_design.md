@@ -1,8 +1,9 @@
 ---
 layout: default
-title: RPC API design in ROS
+title: ROS 上 RPC API 的設計細節
 permalink: articles/ros_rpc.html
 abstract:
+  這篇文章是用來探索下個世代的 ROS 的 Remote Procedure Call 的介面(interface)適合用什麼 design patterns，我們著重於特定的使用者 API 並且不實作(implement)細節。我們期待一個 RPC 可以選擇不同的實作，就像 Apache Thrift, ROS RPC 或 MsgPack。
   This article is an exploration of possible design patterns for the next generation of ROS Remote Procedure Call interfaces.
   We focus here on specifying the user API and leave the implementation unspecified.
   It is expected that there are one or more RPC implementations which can be used, such as Apache Thrift, ROS RPC, or MsgPack.
@@ -21,6 +22,7 @@ published: true
 
 Original Author: {{ page.author }}
 
+ROS 有兩種 RPC 的原型(primitive)，ROS Services 是最基本的 request-response 類型的 RPC，而 ROS Actions 附加了可搶占(preemptive)的屬性，當 requests 要送出去時就會產生 feedback。
 In ROS there are two types of Remote Procedure Call (RPC) primitives.
 ROS Services are basic request-response style RPC's, while ROS Actions additionally are preemptible and offer feedback while requests are being processed.
 
