@@ -4,11 +4,10 @@ title: ROS 上 RPC API 的設計細節
 permalink: articles/ros_rpc.html
 abstract:
   這篇文章是用來探索下個世代的 ROS 的 Remote Procedure Call 的介面(interface)適合用什麼 design patterns，我們著重於特定的使用者 API 並且不實作(implement)細節。我們期待一個 RPC 可以選擇不同的實作，就像 Apache Thrift, ROS RPC 或 MsgPack。
-  This article is an exploration of possible design patterns for the next generation of ROS Remote Procedure Call interfaces.
-  We focus here on specifying the user API and leave the implementation unspecified.
-  It is expected that there are one or more RPC implementations which can be used, such as Apache Thrift, ROS RPC, or MsgPack.
+
 author: '[Tully Foote](https://github.com/tfoote)'
 published: true
+translator: yenWu
 ---
 
 * This will become a table of contents (this text will be scraped).
@@ -22,40 +21,42 @@ published: true
 
 Original Author: {{ page.author }}
 
-ROS 有兩種 RPC 的原型(primitive)，ROS Services 是最基本的 request-response 類型的 RPC，而 ROS Actions 附加了可搶占(preemptive)的屬性，當 requests 要送出去時就會產生 feedback。
-In ROS there are two types of Remote Procedure Call (RPC) primitives.
-ROS Services are basic request-response style RPC's, while ROS Actions additionally are preemptible and offer feedback while requests are being processed.
+ROS 有兩種 RPC 的原型(primitive)，ROS Services 是最基本的 request-response 類型的 RPC，當 requests 送出時，ROS Actions 是具有可搶占性(preemptive)並會產生 feedback。
 
 ## Ideal System
-
+思考如何完成理想系統，我們必須明瞭他和現在系統的關西，和如何使一個新的系統能夠運作，一個理想的 RPC 系統能必須確保每個元件的品質。
 It is useful to consider the ideal system to understand how it relates to the current system and how a new system could work.
 An ideal RPC system would have the qualities laid out in the following paragraphs.
 
 ### Asynchronous API
 
-An asynchronous API allows alternative threading models and is in general
-more flexible than a synchronous API, which can always be implemented on
-top of asynchronous API.  Doing the reverse (building an asynchronous API
-on top of a synchronous API) is harder and likely less efficient.
+Asynchronous API 提供一個變相的 threading models，並且比 Synchronous API 有更好的彈性，
+Synchronous API 將可以建置在 Asynchronous API 之上，而相反的，將 Asynchronous API 建置在 Synchronous API 是相對困難且比較沒效率的。
 
 ### Timeouts
+
+當一個 service 提供者 hang 住或者是無法正確的 return，那麼 calling thread 也將會無期限的 hang 住。
+Timeout 提供了一個錯誤回復的機制(ex: 連線失敗)，並讓使用者可以選擇繼續等待或是 abort。
 
 If a service provider hangs or otherwise does not return correctly, then a calling thread may be hung indefinitely.
 Having a timeout allows for recovery behavior in the case of failure conditions besides a dropped connection, allowing the user to choose to continue waiting for another timeout cycle or abort the request.
 
 ### Preemptibility
 
-Preemption is a desirable feature whenver there may be long-running or non-deterministically running remote procedures.
-Specifically, we want the ability to preempt a long-running procedure with either a timeout on synchronous requests or an explicit call to cancel on asynchronous requests.
-Preemptibility is a required feature for the concept of Actions to be implemented (which is one reason that Actions are built on asynchronous ROS Messages instead of synchronous ROS Services).
+Preemption 是個非常需要的特色，特別是在長時間運行或是不確定執行時間的 remote procedues。
+我們特別希望使用 timeout 或是 asynchronous request 來 preempt 一個長時間運行的 procedue。
+Preemptibility 是個用來實現 ROS Actions 的需求之一(這是 ROS Action 為什麼要使用 asynchronous ROS Message 而不是 synchronous ROS Services)。
 
 ### Feedback
 
-In order to effectively use preemption without a timeout, periodic or procedural feedback is usually required.
-Feedback can be provided via an external mechanism such as an implicitly related publish-subscribe channel.
-Feedback is also central to the concept of Actions in ROS.
+為了增進 preeption without timeout 的效率，我用需要週期性或是 procedural 的 feedback。
+Feedback 的實現可以透過額外的機制(ex: 隱性的 publish-subscribe channel)。
+Feedback 是 ROS Actions 的核心觀念。
 
 ### Reliable Transport
+
+不讓系統陷入不確定狀態(ex:封包遺失)是很重要的。
+當一個 request 或是 response 已經無法遺失了，我們必須要能夠察覺到這一點，並且使用一些方法來回復這個資訊或是通知 user 遺失了。ROS 1.x 缺乏這個機制，導致 ROS Actions 會出問題(e.g, 當使用 wireless 連結)。
 
 It is important that the system cannot get into an undetermined state if there is packet loss.
 If a request or response is never received by either side the system must be able to notice this loss, then recover and/or inform the user in some way.
