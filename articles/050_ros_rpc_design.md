@@ -64,6 +64,8 @@ In ROS 1.x, this lack of reliability has been a problem for ROS Actions, e.g., w
 
 ### Logging and Introspection
 
+當使用了 ROS 1.x 的紀錄系統(e.g, `rosbag`)，要紀錄 ROS Service 所傳遞的 data 是比較困難的。由於 ROS Service 是 p2p 的傳輸，而不是 boardcast，所以要向他註冊是比較困難的。儘管如此，要有效的紀錄 ROS Service 仍然是有可能的，只要在特定 level 紀錄 RPC 之間的互動，使得之後有機會回推到原本傳送的訊息(雖然這邊沒有講清楚回推是要如何運作)。
+
 When logging a ROS 1.x system (e.g., using `rosbag`), recording data transmitted on topics is insufficient to capture any information about service calls.
 Because service calls are conceptually point to point, rather than broadcast, logging them is difficult.
 Still, it should be possible to efficiently record some level of detail regarding RPC interactions, such that they could be later played back in some manner (though it it not clear exactly how playback would work).
