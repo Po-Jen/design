@@ -10,7 +10,6 @@ author: '[William Woodall](https://github.com/wjwwood)'
 translator: 賴柏任
 ---
 
-* This will become a table of contents (this text will be scraped).
 {:toc}
 
 # {{ page.title }}

@@ -9,3 +9,119 @@ show_in_nav: true
 如果你希望撰寫一些文章，可以到[ROS 2 design的網頁](http://design.ros2.org/contribute.html)看看怎麼做。
 
 如果你覺得中文化的網站不錯，歡迎推薦給有興趣的朋友，希望有更多的台灣人一起來學習ROS這個在機器人領域越來越重要的工具，一起為台灣努力!
+=======
+There are many ways you can contribute to the ROS 2.0 design effort.
+The most important of which is probably to review the list of articles posted on the [home page](/) and familiarize yourself with the discussions surrounding an issue before getting involved.
+This will help keep everyone on the same page and prevent having to discuss things multiple times.
+
+## The Side Bar
+
+Every page on this site has a side bar with some extra information and tools.
+In the side bar there are "View Source" and "Edit in Github" buttons, which take you to the source for the page and allow you to edit the page in Github's on-line editor, respectively.
+
+Additionally, if you are logged with Github (see the top right corner of the screen), you will see any open or closed pull requests related to this page.
+These pull requests are modifications people have already proposed to this page and should be reviewed before proposing changes of your own.
+
+Finally, a list of contributors to this page is listed if you are logged in.
+
+## Proposing Changes to an Existing Article
+
+If you believe you have something to add to an existing article, then you can click the "Edit in Github" button and make your modifications.
+Github will then prompt you for a commit message, which is basically your opportunity to describe what you've changed, and then make a pull request on your behalf.
+This is the easiest way to modify an existing article, but you can checkout the "Manually Making a Pull Request" section below if you need to see what it will look like rendered first or if you wish to edit it off-line.
+
+## Submitting a New Article
+
+New articles should be submitted as a new file under the `articles/` folder.
+You can add a new file using Github's web interface through this link:
+
+[https://github.com/ros2/design/new/gh-pages/articles](https://github.com/ros2/design/new/gh-pages/articles)
+
+This link will create a new file, give an opportunity to name it, and provide you with an on-line editor to write the file.
+
+New articles should follow this template, with the content of the article formatted using [Markdown](https://daringfireball.net/projects/markdown/):
+
+{% raw %}
+
+    ---
+    layout: default
+    title: Template for New Articles
+    abstract:
+      This is a multi-line abstract about this article. It should give a good overview about the contents of this article, the reason for writing it, and what the article delivers. The abstract is put in the "front-matter" of the document (YAML between the initial `---`'s) so that it can easily be reused elsewhere in the site.
+    author: '[William Woodall](https://github.com/wjwwood)'
+    published: false
+    ---
+
+    - This will become a table of contents (this text will be scraped).
+    {:toc}
+
+    # {{ page.title }}
+
+    <div class="abstract" markdown="1">
+    {{ page.abstract }}
+    </div>
+
+    Original Author: {{ page.author }}
+
+    ## First Heading
+
+    Content....
+
+{% endraw %}
+
+## Manually Making a Pull Request
+
+If you need to reproduce the site locally and/or make extensive changes, you can clone the entire website and work on it locally before making a pull request manually.
+
+### Forking this Repository
+
+First check to see if you already have a fork of this repository at:
+
+`https://github.com/<your github username>/design`
+
+If you do not, then browse to this [repository](https://github.com/ros2/design) site and click on the "Fork" button:
+
+<img style="height: 50px;" src="/img/fork.png"/>
+
+Github will now go off and create a fork off this repository into your Github account.
+Then you can clone your fork of the repository by running this command:
+
+    git clone https://github.com/<your github username>/design.git
+
+This will clone the repository onto your machine into a folder called `design`. You can edit these files in this folder using your favorite editor.
+
+### Using Jekyll to Preview Changes
+
+If your change is more extensive or you want to see what your changes will look like on the live site, you can do so by running Jekyll locally.
+First install Jekyll for your system:
+
+[http://jekyllrb.com/docs/installation/](http://jekyllrb.com/docs/installation/)
+
+Once you have Jekyll installed you should be able to run this command:
+
+    jekyll serve --watch --baseurl=''
+
+The `jekyll server` command will start a web server which you can access at `http://localhost:4000`.
+The `--watch` option will cause the jekyll web server to regenerate pages which are changed each time they are modified.
+This allows you to make quick edits to the documents and then refresh the web page to get the changes immediately.
+The `--baseurl=''` option sets the `baseurl` variable for the site's global config, allowing static files like the `css` and `js` files work on your `localhost`.
+
+### Submitting a Pull Request
+
+Once you are satisfied with your changes you can follow the Github tutorial on [creating a pull request](https://help.github.com/articles/creating-a-pull-request) to create a pull request against our repository, where we can review and discuss your changes before merging.
+
+## Check markdown style locally
+
+There is a markdown linter that checks formatting style which is automatically invoked for new pull requests by [Travis](https://travis-ci.org/).
+To run the same checks locally you first need Node.js version 4 or later.
+Install [nvm](https://github.com/creationix/nvm/blob/master/README.markdown) and use it to install Node, for example with:
+
+    nvm install 4
+
+Then you need to install the linter specific Node packages and invoke the linter using the following commands, within the repository directory:
+
+    npm install remark-cli remark-lint remark-lint-sentence-newline
+    jekyll build
+    ./node_modules/remark-cli/cli.js --frail articles/
+
+If the result of the check is that no issues were found, your markdown style is correct and you can submit your pull request.

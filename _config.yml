@@ -1,4 +1,4 @@
-name: ROS2 Design
+name: ROS 2 Design
 description: "Distilled design documents related to the ROS 2.0 effort"
 
 baseurl: http://po-jen.github.io/design
@@ -7,13 +7,15 @@ repo: https://github.com/Po-Jen/design
 oauth_client_id: efa6dd8eae9106381720
 
 markdown: kramdown
-highlighter: pygments
+highlighter: rouge
 
-relative_permalinks: false
+kramdown:
+   input: GFM
 
 exclude:
  - CNAME
  - config.json
+ - examples
  - Gemfile
  - LICENSE
  - README.md

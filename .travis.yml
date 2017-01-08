@@ -1,8 +1,16 @@
 language: ruby
 rvm:
 - 2.1
-install: gem install jekyll
-script: jekyll build
+sudo: false
+install:
+- gem install bundler --no-rdoc --no-ri
+- bundle install
+# install newer npm version otherwise remark fails
+- rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 4
+- npm install remark-cli remark-lint remark-lint-sentence-newline
+script:
+- jekyll build
+- ./node_modules/remark-cli/cli.js --frail articles/
 
 # branch whitelist
 branches:
