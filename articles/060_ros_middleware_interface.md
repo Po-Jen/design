@@ -3,10 +3,9 @@ layout: default
 title: ROS 2 middleware interface
 permalink: articles/ros_middleware_interface.html
 abstract:
-  This article describes the rationale for using an abstract middleware interface between ROS and a specific middleware implementation.
-  It will outline the targeted use cases as well as their requirements and constraints.
-  Based on that the developed middleware interface is explained.
+  這篇文章主要在說明，為什麼要在ROS和middleware間增加abstract middleware interface，文章會涵蓋我們的使用情境和他的需求以及限制，這些內容就能說明為何我們要開發 middleware interface。
 author: '[Dirk Thomas](https://github.com/dirk-thomas)'
+translator: '[yenWu](https://github.com/yenWu)
 published: true
 categories: Middleware
 ---
@@ -23,24 +22,17 @@ Original Author: {{ page.author }}
 
 ## The *middleware interface*
 
-### Why does ROS 2 have a *middleware interface*
+### 為什麼ROS 2需要*middleware interface*?
 
-The ROS client library defines an API which exposes communication concepts like publish / subscribe to users.
+ROS client library 使用了Publisher和Subscriber類型的通訊概念並制定了相關的API，在ROS 1的實作中，我們客製化了一套通訊protocol(e.g., [TCPROS](http://wiki.ros.org/ROS/TCPROS))。
 
-In ROS 1 the implementation of these communication concepts was built on custom protocols (e.g., [TCPROS](http://wiki.ros.org/ROS/TCPROS)).
+在ROS 2的實作中，我們決定在現有的 middleware solution([DDS](http://en.wikipedia.org/wiki/Data_Distribution_Service))上建構通訊界面，這方法的最主要好處就是，可以透過這些現有且開發妥善的starndard實作資源，讓ROS 2能夠達到更完善的一個階段。
 
-For ROS 2 the decision has been made to build it on top of an existing middleware solution (namely [DDS](http://en.wikipedia.org/wiki/Data_Distribution_Service)).
-The major advantage of this approach is that ROS 2 can leverage an existing and well developed implementation of that standard.
+但問題是ROS只能建構在其中一個DDNS的實作上面，現在有這麼多可用的DDNS實作資源，每一個都有他們的利與弊、支援的平台、使用語言、效能特色、memory footprint、相依性甚至是 License，考慮到這些因素，可支援不同DDS的實作成為ROS的目標之一，就算他們的API都差很多，我們接著要介紹如何做到支援多種DDS的抽象手法。
 
-ROS could build on top of one specific implementation of DDS.
-But there are numerous different implementations available and each has its own pros and cons in terms of supported platforms, programming languages, performance characteristics, memory footprint, dependencies and licensing.
+*Middleware Interface*定義了相關的API，可以用來連接ROS client library與特定的實作。
 
-Therefore ROS aims to support multiple DDS implementations despite the fact that each of them differ slightly in their exact API.
-In order to abstract from the specifics of these APIs, an abstract interface is being introduced which can be implemented for different DDS implementations.
-This *middleware interface* defines the API between the ROS client library and any specific implementation.
-
-Each implementation of the interface will usually be a thin adapter which maps the generic *middleware interface* to the specific API of the middleware implementation.
-In the following the common separation of the adapter and the actual middleware implementation will be omitted.
+每一個實作接口都是一個小型的adapter(轉接器)，我們用它來銜接特定的DDS實作至標準的*middleware interface*，如下圖:
 
     +-----------------------------------------------+
     |                   user land                   |
